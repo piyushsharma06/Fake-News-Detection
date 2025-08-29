@@ -1,0 +1,33 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+# 🔹 Step 1: Dataset load karo (news.csv file aapke project folder me honi chahiye)
+# Dataset ke andar do columns hone chahiye: 'text' aur 'label'
+df = pd.read_csv('news.csv')
+
+# 🔹 Step 2: Labels extract karo
+labels = df['label']
+
+# 🔹 Step 3: Train-Test Split (80% training, 20% testing)
+x_train, x_test, y_train, y_test = train_test_split(df['text'], labels, test_size=0.2, random_state=7)
+
+# 🔹 Step 4: Feature Extraction (TF-IDF)
+tfidf_vectorizer = TfidfVectorizer(stop_words='english', max_df=0.7)
+tfidf_train = tfidf_vectorizer.fit_transform(x_train)
+tfidf_test = tfidf_vectorizer.transform(x_test)
+
+# 🔹 Step 5: Model Training (Passive Aggressive Classifier)
+pac = PassiveAggressiveClassifier(max_iter=50)
+pac.fit(tfidf_train, y_train)
+
+# 🔹 Step 6: Prediction
+y_pred = pac.predict(tfidf_test)
+
+# 🔹 Step 7: Evaluation
+accuracy = accuracy_score(y_test, y_pred)
+print(f'✅ Accuracy: {round(accuracy*100,2)}%')
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
